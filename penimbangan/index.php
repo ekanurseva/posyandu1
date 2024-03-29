@@ -313,7 +313,7 @@ if (isset($_GET['cek_tanggal'])) {
 
             // Kirim permintaan Ajax ke server
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '../print.php');
+            xhr.open('POST', '../print_penimbangan.php');
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.onload = function () {
                 if (xhr.status === 200) {
