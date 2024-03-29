@@ -110,7 +110,6 @@ if (isset($_GET['cek_tanggal'])) {
                             <?php
                             $i = 1;
                             foreach ($imunisasi as $imun):
-
                                 $id_balita = $imun['id_balita'];
                                 $data_balita = query("SELECT * FROM balita WHERE id_balita = $id_balita")[0];
 

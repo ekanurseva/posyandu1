@@ -1,5 +1,5 @@
 <?php
-require_once '../controller/mainController.php';
+require_once 'mainController.php';
 
 function create($data)
 {
@@ -230,6 +230,16 @@ function cari_penimbangan($data)
                           WHERE idjadwal IN (SELECT idjadwal FROM jdw_posyandu WHERE jadwal BETWEEN '$dari' AND '$sampai')");
 
     return $penimbangan; // Mengembalikan array yang berisi data penimbangan
+}
+
+function cari_penimbangan_berdasarkan_bulan_dan_tahun($bulan, $tahun)
+{
+    // Query untuk mendapatkan data penimbangan berdasarkan bulan dan tahun
+    $penimbangan = query("SELECT * FROM penimbangan WHERE idjadwal IN 
+                         (SELECT idjadwal FROM jdw_posyandu 
+                         WHERE MONTH(jadwal) = '$bulan' AND YEAR(jadwal) = '$tahun')");
+
+    return $penimbangan;
 }
 
 

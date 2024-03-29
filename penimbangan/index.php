@@ -60,9 +60,19 @@ if (isset($_GET['cek_tanggal'])) {
                 <h4 class="text-center fw-bold" style="color: black;">MANAJEMEN DATA PENIMBANGAN</h4>
 
                 <div class="mt-4">
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#timbang">
-                        Tambah Data
-                    </button>
+                    <div class="row justify-content-between">
+                        <div class="col-4">
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#timbang">
+                                Tambah Data
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-sm btn-success" type="button" data-bs-toggle="modal"
+                                data-bs-target="#cetak">
+                                Cetak Laporan
+                            </button>
+                        </div>
+                    </div>
 
                     <form action="" method="get">
                         <div class="filter mt-4">
@@ -175,6 +185,67 @@ if (isset($_GET['cek_tanggal'])) {
             </div>
         </div>
 
+        <!-- Modal Cetak -->
+        <div class="modal fade modal-dialog-scrollable" id="cetak" data-bs-backdrop="static" data-bs-keyboard="false"
+            tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Pilih bulan dan tahun</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="selectForm">
+                        <div class="modal-body">
+                            <label for="bulan">Bulan:</label>
+                            <select name="bulan" id="bulan" class="form-select" aria-label="Default select example"
+                                style="border: 1px solid black;">
+                                <?php
+                                // Daftar nama bulan
+                                $nama_bulan = array(
+                                    1 => 'Januari',
+                                    2 => 'Februari',
+                                    3 => 'Maret',
+                                    4 => 'April',
+                                    5 => 'Mei',
+                                    6 => 'Juni',
+                                    7 => 'Juli',
+                                    8 => 'Agustus',
+                                    9 => 'September',
+                                    10 => 'Oktober',
+                                    11 => 'November',
+                                    12 => 'Desember'
+                                ); // Loop untuk membuat opsi bulan
+                                foreach ($nama_bulan as $nomor => $nama) {
+                                    echo "<option value=\"$nomor\">$nama</option>";
+                                }
+                                ?>
+                            </select>
+
+                            <label for="tahun" class="mt-3">Tahun:</label>
+                            <select name="tahun" id="tahun" class="form-select" aria-label="Default select example"
+                                style="border: 1px solid black;">
+                                <?php
+                                // Ambil tahun sekarang
+                                $tahun_sekarang = date('Y');
+
+                                // Loop untuk membuat opsi tahun dari 1999 hingga tahun sekarang
+                                for ($tahun = 2005; $tahun <= $tahun_sekarang; $tahun++) {
+                                    echo "<option value=\"$tahun\">$tahun</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Pilih</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- Modal Cetak selesai -->
+
         <!-- Modal Input Penimbangan = Pilih Balita -->
         <div class="modal fade" id="timbang" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
             aria-labelledby="ciriLabel" aria-hidden="true">
@@ -234,6 +305,28 @@ if (isset($_GET['cek_tanggal'])) {
         $(document).ready(function () {
             $('#example').DataTable();
         });
+
+        document.getElementById('selectForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var selectedBulan = document.getElementById('bulan').value;
+            var selectedTahun = document.getElementById('tahun').value;
+
+            // Kirim permintaan Ajax ke server
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '../print.php');
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    // Tangani respons dari server
+                    var pdfData = xhr.responseText;
+                    // Tampilkan dokumen PDF kepada pengguna
+                    var pdfWindow = window.open('', '_blank');
+                    pdfWindow.document.write('<embed width="100%" height="100%" src="data:application/pdf;base64,' + pdfData + '" type="application/pdf" />');
+                }
+            };
+            xhr.send('bulan=' + selectedBulan + '&tahun=' + selectedTahun); // Perhatikan tambahan tanda '&' untuk memisahkan parameter
+        });
+
     </script>
 </body>
 
