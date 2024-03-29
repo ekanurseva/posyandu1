@@ -133,4 +133,14 @@ function cari_imunisasi($data)
 
     return $imunisasi; // Mengembalikan array yang berisi data imunisasi
 }
+
+function cari_imunisasi_berdasarkan_bulan_dan_tahun($bulan, $tahun)
+{
+    // Query untuk mendapatkan data imunisasi berdasarkan bulan dan tahun
+    $imunisasi = query("SELECT * FROM imunisasi WHERE idjadwal IN 
+                         (SELECT idjadwal FROM jdw_posyandu 
+                         WHERE MONTH(jadwal) = '$bulan' AND YEAR(jadwal) = '$tahun')");
+
+    return $imunisasi;
+}
 ?>
