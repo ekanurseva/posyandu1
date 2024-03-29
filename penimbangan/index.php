@@ -225,11 +225,11 @@ if (isset($_GET['cek_tanggal'])) {
                             <select name="tahun" id="tahun" class="form-select" aria-label="Default select example"
                                 style="border: 1px solid black;">
                                 <?php
+                                $tahun_awal = 2024;
                                 // Ambil tahun sekarang
                                 $tahun_sekarang = date('Y');
-
-                                // Loop untuk membuat opsi tahun dari 1999 hingga tahun sekarang
-                                for ($tahun = 2005; $tahun <= $tahun_sekarang; $tahun++) {
+                                echo "<option value=\"$tahun_sekarang\">$tahun_sekarang</option>"; // Menampilkan tahun sekarang sebagai opsi pertama
+                                for ($tahun = $tahun_sekarang - 1; $tahun >= $tahun_awal; $tahun--) {
                                     echo "<option value=\"$tahun\">$tahun</option>";
                                 }
                                 ?>
