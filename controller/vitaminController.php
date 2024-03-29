@@ -134,4 +134,14 @@ function cari_vitamin($data)
 
     return $vitamin; // Mengembalikan array yang berisi data vitamin
 }
+
+function cari_vitamin_berdasarkan_bulan_dan_tahun($bulan, $tahun)
+{
+    // Query untuk mendapatkan data vitamin berdasarkan bulan dan tahun
+    $vitamin = query("SELECT * FROM vitamin WHERE idjadwal IN 
+                         (SELECT idjadwal FROM jdw_posyandu 
+                         WHERE MONTH(jadwal) = '$bulan' AND YEAR(jadwal) = '$tahun')");
+
+    return $vitamin;
+}
 ?>
