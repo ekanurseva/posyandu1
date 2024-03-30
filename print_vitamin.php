@@ -4,13 +4,14 @@ require_once 'controller/vitaminController.php';
 
 use Dompdf\Dompdf;
 
-if (isset($_POST['bulan']) && isset($_POST['tahun'])) {
-    $bulan = $_POST['bulan'];
-    $tahun = $_POST['tahun'];
+$dompdf = new Dompdf();
+
+if (isset($_GET['bulan']) && isset($_GET['tahun'])) {
+    $bulan = $_GET['bulan'];
+    $tahun = $_GET['tahun'];
 
     $vitamin = cari_vitamin_berdasarkan_bulan_dan_tahun($bulan, $tahun);
 
-    $dompdf = new Dompdf();
 
     // Masukkan kode HTML dan CSS yang ingin Anda konversi ke PDF
     $html = '<!DOCTYPE html>
@@ -18,6 +19,7 @@ if (isset($_POST['bulan']) && isset($_POST['tahun'])) {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
                 <title>LAPORAN VITAMIN</title>
                 <style>
                     table {
@@ -87,60 +89,66 @@ if (isset($_POST['bulan']) && isset($_POST['tahun'])) {
             $html .= '<h4 style="margin: 0;">Posyandu: ' . $nama_posyandu . '</h4>';
 
             foreach ($jadwal_posyandu as $jadwal) {
-                $tanggal_jadwal = $jadwal['jadwal'];
+                $idjidwil = $jadwal['idjadwal'];
 
+                $cek_jadwal = query("SELECT * FROM vitamin WHERE idjadwal = '$idjidwil'");
+                $tanggal_jadwal = $jadwal['jadwal'];
                 // Format tanggal jadwal
                 $tanggal_jadwal_format = date("l, d F Y", strtotime($tanggal_jadwal));
                 $tanggal = cari_tanggal($tanggal_jadwal_format, 'l, d F Y');
 
-                $html .= '<h4 style="margin: 0;">Tanggal Vitamin: ' . $tanggal . '</h4>';
+                $html .= '<h4 style="margin: 0;">Tanggal vitamin: ' . $tanggal . '</h4>';
 
-                // Tampilkan tabel data vitamin
-                if (!empty($vitamin)) {
-                    $html .= '<table>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Anak</th>
-                                    <th>Umur</th>
-                                    <th>Nama Ortu</th>
-                                    <th>Jenis Vitamin</th>
-                                </tr>';
+                if (count($cek_jadwal) != 0) {
 
-                    $i = 1;
-                    foreach ($vitamin as $imun) {
-                        // Pastikan hanya menampilkan data vitamin yang sesuai dengan jadwal posyandu yang dipilih
-                        if ($imun['idjadwal'] == $jadwal['idjadwal']) {
-                            $id_balita = $imun['id_balita'];
-                            $data_balita = query("SELECT * FROM balita WHERE id_balita = $id_balita")[0];
-
-                            $id_ibu = $data_balita['id_user'];
-                            $data_ibu = query("SELECT nama FROM user WHERE id_user = $id_ibu")[0];
-
-                            $bulan_ = cari_bulan($data_balita['tanggal_lahir']);
-
-                            $umur = '';
-                            if ($bulan_ > 11) {
-                                $tahun_ = floor($bulan_ / 12);
-                                $umur = $tahun_ . ' tahun';
-                            } else {
-                                $umur = $bulan_ . ' bulan';
-                            }
-
-                            $html .= '<tr>
-                                        <td>' . $i . '</td>
-                                        <td>' . $data_balita['nama_balita'] . '</td>
-                                        <td>' . $umur . '</td>
-                                        <td>' . $data_ibu['nama'] . " - " . $data_balita['nama_ayah'] . '</td>
-                                        <td>' . $imun['jenis_vitamin'] . '</td>
+                    // Tampilkan tabel data vitamin
+                    if (!empty($vitamin)) {
+                        $html .= '<table>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Anak</th>
+                                        <th>Umur</th>
+                                        <th>Nama Ortu</th>
+                                        <th>Vitamin A</th>
                                     </tr>';
-                            $i++;
-                        }
-                    }
 
-                    $html .= '</table>';
+                        $i = 1;
+                        foreach ($vitamin as $vit) {
+                            // Pastikan hanya menampilkan data vitamin yang sesuai dengan jadwal posyandu yang dipilih
+                            if ($vit['idjadwal'] == $jadwal['idjadwal']) {
+                                $id_balita = $vit['id_balita'];
+                                $data_balita = query("SELECT * FROM balita WHERE id_balita = $id_balita")[0];
+
+                                $id_ibu = $data_balita['id_user'];
+                                $data_ibu = query("SELECT nama FROM user WHERE id_user = $id_ibu")[0];
+
+                                $bulan_ = cari_bulan($data_balita['tanggal_lahir']);
+
+                                $umur = '';
+                                if ($bulan_ > 11) {
+                                    $tahun_ = floor($bulan_ / 12);
+                                    $umur = $tahun_ . ' tahun';
+                                } else {
+                                    $umur = $bulan_ . ' bulan';
+                                }
+
+                                $html .= '<tr>
+                                            <td>' . $i . '</td>
+                                            <td>' . $data_balita['nama_balita'] . '</td>
+                                            <td>' . $umur . '</td>
+                                            <td>' . $data_ibu['nama'] . " - " . $data_balita['nama_ayah'] . '</td>
+                                            <td><i class="fas fa-check"></i></td>
+                                        </tr>';
+                                $i++;
+                            }
+                        }
+
+                        $html .= '</table>';
+                    }
                 } else {
-                    $html .= '<h5>Tidak ada balita yang melakukan vitamin pada posyandu ' . $nama_posyandu . ' di bulan ini</h5>';
+                    $html .= '<h5 style="margin-top: 7px;">Tidak ada balita yang diberi vitamin pada posyandu ' . $nama_posyandu . ' di bulan ini</h5><br>';
                 }
+
             }
             $html .= '</div>';
         }
@@ -172,13 +180,16 @@ if (isset($_POST['bulan']) && isset($_POST['tahun'])) {
     // Memasukkan konten HTML ke Dompdf
     $dompdf->loadHtml($html);
 
-    // Render HTML ke PDF
+    // Merender PDF (mengubah HTML menjadi PDF)
     $dompdf->render();
 
-    // Ambil output PDF dan tutup output buffer
-    $pdfData = $dompdf->output();
+    // Ambil output PDF
+    $output = $dompdf->output();
+
+    // Konversi output PDF menjadi data URI
+    $pdfDataUri = 'data:application/pdf;base64,' . base64_encode($output);
 
     // Tampilkan pratinjau PDF di browser
-    echo base64_encode($pdfData);
+    echo '<embed src="' . $pdfDataUri . '" type="application/pdf" width="100%" height="100%">';
 }
 ?>

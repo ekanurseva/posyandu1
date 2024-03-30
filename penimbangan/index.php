@@ -4,12 +4,10 @@ require_once '../controller/penimbanganController.php';
 
 $balita = query("SELECT * FROM balita ORDER BY id_user ASC");
 
-$penimbangan = query("SELECT * FROM penimbangan ORDER BY id_balita ASC");
-
-if (isset($_GET['cek_tanggal'])) {
-    if ($_GET['dari'] != "" && $_GET['sampai'] != "") {
-        $penimbangan = cari_penimbangan($_GET);
-    }
+if (isset($_GET['cek_tanggal']) && ($_GET['dari'] != "" && $_GET['sampai'] != "")) {
+    $penimbangan = cari_penimbangan($_GET);
+} else {
+    $penimbangan = query("SELECT * FROM penimbangan ORDER BY id_balita ASC");
 }
 ?>
 
@@ -135,48 +133,48 @@ if (isset($_GET['cek_tanggal'])) {
 
                                 $jadwal = cari_tanggal($data_jadwal['jadwal'], 'l | d F Y | H:i');
                                 ?>
-                                <tr>
-                                    <td>
-                                        <?= $i; ?>
-                                    </td>
-                                    <td>
-                                        <?= $data_balita['nama_balita']; ?>
-                                    </td>
-                                    <td>
-                                        <?= $pen['berat_badan']; ?> kg
-                                    </td>
-                                    <td>
-                                        <?= $pen['tinggi_badan']; ?> cm
-                                    </td>
-                                    <td>
-                                        <?= $pen['status_gizi']; ?>
-                                    </td>
-                                    <td>
-                                        <?= $pen['lila']; ?> cm
-                                    </td>
-                                    <td>
-                                        <?= $pen['lika']; ?> cm
-                                    </td>
-                                    <td>
-                                        <?= $jadwal; ?> di Posyandu
-                                        <?= $data_posyandu['nama_posyandu']; ?>
-                                    </td>
-                                    <td>
-                                        <form class="d-inline" action="edit.php?id=<?= enkripsi($pen['id_timbang']); ?>"
-                                            method="post">
-                                            <input type="hidden" name="url" value="index.php">
-                                            <button class="btn btn-sm btn-primary btn-sm"><i
-                                                    class="bi bi-pencil-fill"></i></button>
-                                        </form>
-                                        |
-                                        <a class="delete bg-danger" id="delete"
-                                            onclick="deletePenimbangan(<?= $pen['id_timbang']; ?>)">
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i></button>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php
-                                $i++;
+                                    <tr>
+                                        <td>
+                                            <?= $i; ?>
+                                        </td>
+                                        <td>
+                                            <?= $data_balita['nama_balita']; ?>
+                                        </td>
+                                        <td>
+                                            <?= $pen['berat_badan']; ?> kg
+                                        </td>
+                                        <td>
+                                            <?= $pen['tinggi_badan']; ?> cm
+                                        </td>
+                                        <td>
+                                            <?= $pen['status_gizi']; ?>
+                                        </td>
+                                        <td>
+                                            <?= $pen['lila']; ?> cm
+                                        </td>
+                                        <td>
+                                            <?= $pen['lika']; ?> cm
+                                        </td>
+                                        <td>
+                                            <?= $jadwal; ?> di Posyandu
+                                            <?= $data_posyandu['nama_posyandu']; ?>
+                                        </td>
+                                        <td>
+                                            <form class="d-inline" action="edit.php?id=<?= enkripsi($pen['id_timbang']); ?>"
+                                                method="post">
+                                                <input type="hidden" name="url" value="index.php">
+                                                <button class="btn btn-sm btn-primary btn-sm"><i
+                                                        class="bi bi-pencil-fill"></i></button>
+                                            </form>
+                                            |
+                                            <a class="delete bg-danger" id="delete"
+                                                onclick="deletePenimbangan(<?= $pen['id_timbang']; ?>)">
+                                                <button class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i></button>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                    $i++;
                             endforeach;
                             ?>
                         </tbody>
@@ -238,7 +236,7 @@ if (isset($_GET['cek_tanggal'])) {
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Pilih</button>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">Pilih</button>
                         </div>
                     </form>
                 </div>
@@ -268,9 +266,9 @@ if (isset($_GET['cek_tanggal'])) {
                                         aria-label="Default select example" name="id_balita">
                                         <option value="" selected hidden>--Pilih Balita--</option>
                                         <?php foreach ($balita as $b): ?>
-                                            <option value="<?= $b['id_balita']; ?>">
-                                                <?= $b['nama_balita']; ?> (Ayah : <?= $b['nama_ayah']; ?>)
-                                            </option>
+                                                                                                <option value="<?= $b['id_balita']; ?>">
+                                                                                                    <?= $b['nama_balita']; ?> (Ayah : <?= $b['nama_ayah']; ?>)
+                                                                                                </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -289,8 +287,6 @@ if (isset($_GET['cek_tanggal'])) {
 
     </div>
 
-
-
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
         </script>
@@ -305,28 +301,15 @@ if (isset($_GET['cek_tanggal'])) {
         $(document).ready(function () {
             $('#example').DataTable();
         });
+        
+        document.getElementById('submitBtn').addEventListener('click', function () {
+            var bulan = document.getElementById('bulan').value;
+            var tahun = document.getElementById('tahun').value;
 
-        document.getElementById('selectForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            var selectedBulan = document.getElementById('bulan').value;
-            var selectedTahun = document.getElementById('tahun').value;
+            var url = '../print_penimbangan.php?bulan=' + bulan + '&tahun=' + tahun;
 
-            // Kirim permintaan Ajax ke server
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '../print_penimbangan.php');
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    // Tangani respons dari server
-                    var pdfData = xhr.responseText;
-                    // Tampilkan dokumen PDF kepada pengguna
-                    var pdfWindow = window.open('', '_blank');
-                    pdfWindow.document.write('<embed width="100%" height="100%" src="data:application/pdf;base64,' + pdfData + '" type="application/pdf" />');
-                }
-            };
-            xhr.send('bulan=' + selectedBulan + '&tahun=' + selectedTahun); // Perhatikan tambahan tanda '&' untuk memisahkan parameter
+            window.open(url, '_blank');
         });
-
     </script>
 </body>
 
