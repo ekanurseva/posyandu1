@@ -8,7 +8,7 @@ $vitamin = query("SELECT * FROM vitamin ORDER BY id_balita ASC");
 
 if (isset($_GET['cek_tanggal'])) {
     if ($_GET['dari'] != "" && $_GET['sampai'] != "") {
-        $penimbangan = cari_vitamin($_GET);
+        $vitamin = cari_vitamin($_GET);
     }
 }
 ?>
@@ -130,36 +130,36 @@ if (isset($_GET['cek_tanggal'])) {
 
                                 $jadwal = cari_tanggal($data_jadwal['jadwal'], 'l | d F Y | H:i');
                                 ?>
-                                <tr>
-                                    <td>
-                                        <?= $i; ?>
-                                    </td>
-                                    <td>
-                                        <?= $data_balita['nama_balita']; ?>
-                                    </td>
-                                    <td>
-                                        <?= $v['jenis_vitamin']; ?>
-                                    </td>
-                                    <td>
-                                        <?= $jadwal; ?> di Posyandu
-                                        <?= $data_posyandu['nama_posyandu']; ?>
-                                    </td>
-                                    <td>
-                                        <form class="d-inline" action="edit.php?id=<?= enkripsi($v['id_vitamin']); ?>"
-                                            method="post">
-                                            <input type="hidden" name="url" value="index.php">
-                                            <button class="btn btn-sm btn-primary"><i
-                                                    class="bi bi-pencil-fill"></i></button>
-                                        </form>
+                                    <tr>
+                                        <td>
+                                            <?= $i; ?>
+                                        </td>
+                                        <td>
+                                            <?= $data_balita['nama_balita']; ?>
+                                        </td>
+                                        <td>
+                                            <?= $v['jenis_vitamin']; ?>
+                                        </td>
+                                        <td>
+                                            <?= $jadwal; ?> di Posyandu
+                                            <?= $data_posyandu['nama_posyandu']; ?>
+                                        </td>
+                                        <td>
+                                            <form class="d-inline" action="edit.php?id=<?= enkripsi($v['id_vitamin']); ?>"
+                                                method="post">
+                                                <input type="hidden" name="url" value="index.php">
+                                                <button class="btn btn-sm btn-primary"><i
+                                                        class="bi bi-pencil-fill"></i></button>
+                                            </form>
 
-                                        <a class="delete bg-danger" id="delete"
-                                            onclick="deleteVitamin(<?= $v['id_vitamin']; ?>)">
-                                            <button class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i></button>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <?php
-                                $i++;
+                                            <a class="delete bg-danger" id="delete"
+                                                onclick="deleteVitamin(<?= $v['id_vitamin']; ?>)">
+                                                <button class="btn btn-sm btn-danger"><i class="bi bi-trash-fill"></i></button>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                    $i++;
                             endforeach;
                             ?>
                         </tbody>
@@ -190,9 +190,9 @@ if (isset($_GET['cek_tanggal'])) {
                                         aria-label="Default select example" name="id_balita">
                                         <option value="" selected hidden>--Pilih Balita--</option>
                                         <?php foreach ($balita as $b): ?>
-                                            <option value="<?= $b['id_balita']; ?>">
-                                                <?= $b['nama_balita']; ?> (Ayah : <?= $b['nama_ayah']; ?>)
-                                            </option>
+                                                <option value="<?= $b['id_balita']; ?>">
+                                                    <?= $b['nama_balita']; ?> (Ayah : <?= $b['nama_ayah']; ?>)
+                                                </option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
