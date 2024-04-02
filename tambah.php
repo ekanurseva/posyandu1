@@ -17,9 +17,15 @@
             mysqli_query($conn, "INSERT INTO status_gizi VALUES (NULL, '$jk', '$umur', '$bawah_baik', '$atas_baik', 'Gizi Baik')");
             mysqli_query($conn, "INSERT INTO status_gizi VALUES (NULL, '$jk', '$umur', '$bawah_lebih', '1000', 'Gizi Lebih')");
 
-            echo "<script>alert('Berhasil')</script>";
+            echo "<script>
+                    alert('Berhasil')
+                    document.location.href='tambah.php';
+                </script>";
         } catch (\Throwable $th) {
-            echo "<script>alert('Gagal')</script>";
+            echo "<script>
+                    alert('Gagal')
+                    document.location.href='tambah.php';
+                </script>";
         }
     }
 ?>
