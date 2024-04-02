@@ -73,6 +73,7 @@ if (isset($_GET['id']) && isset($_POST['url'])) {
 
                 <form method="post" action="">
                     <input type="hidden" name="id_timbang" value="<?= $data['id_timbang']; ?>">
+                    <input type="hidden" name="id_balita" value="<?= $id_balita; ?>">
                     <input type="hidden" name="url" value="<?= $_POST['url']; ?>">
 
                     <div class="mb-3 mt-5 row ms-5">
@@ -115,14 +116,6 @@ if (isset($_GET['id']) && isset($_POST['url'])) {
                         <div class="col-sm-6">
                             <input type="number" step="0.1" class="form-control" style="border: 1px solid black;"
                                 id="tb" name="tinggi_badan" value="<?= $data['tinggi_badan']; ?>">
-                        </div>
-                    </div>
-
-                    <div class="mb-3 mt-2 row ms-5">
-                        <label for="tb" class="col-sm-3 me-0 col-form-label">Status Gizi</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" style="border: 1px solid black;" id="tb"
-                                name="status_gizi" value="<?= $data['status_gizi']; ?>">
                         </div>
                     </div>
 

@@ -1,6 +1,25 @@
 <?php
 require_once 'mainController.php';
 
+function status_gizi($idbalita, $berat_badan) {
+    $data = query("SELECT * FROM balita WHERE id_balita = '$idbalita'")[0];
+    $umur = cari_bulan($data['tanggal_lahir']);
+    $jk = $data['jenis_kelamin'];
+    $hasil = "Unknow";
+
+    $data_status = query("SELECT * FROM status_gizi WHERE umur = '$umur' AND jk = '$jk'");
+
+    if(count($data_status) != 0) {
+        foreach($data_status as $status) {
+            if($berat_badan >= $status['batas_bawah'] && $berat_badan <= ($status['batas_atas'] + 0.1)) {
+                $hasil = $status['keterangan'];
+            }
+        }
+    }
+
+    return $hasil;
+}
+
 function create($data)
 {
     global $conn;
@@ -9,7 +28,7 @@ function create($data)
     $idjadwal = htmlspecialchars($data['idjadwal']);
     $berat_badan = htmlspecialchars($data['berat_badan']);
     $tinggi_badan = htmlspecialchars($data['tinggi_badan']);
-    $status_gizi = htmlspecialchars($data['status_gizi']);
+    $status_gizi = status_gizi($id_balita, $berat_badan);
     $lila = htmlspecialchars($data['lila']);
     $lika = htmlspecialchars($data['lika']);
 
@@ -57,17 +76,6 @@ function create($data)
         exit();
     }
 
-    if ($status_gizi == "") {
-        echo "<script>
-                    Swal.fire(
-                        'Gagal!',
-                        'Status gizi tidak boleh kosong',
-                        'error'
-                    )
-                  </script>";
-        exit();
-    }
-
     if ($lila == "") {
         echo "<script>
                     Swal.fire(
@@ -99,11 +107,12 @@ function update($data)
 {
     global $conn;
 
+    $id_balita = $data['id_balita'];
     $id_timbang = htmlspecialchars($data['id_timbang']);
     $idjadwal = htmlspecialchars($data['idjadwal']);
     $berat_badan = htmlspecialchars($data['berat_badan']);
     $tinggi_badan = htmlspecialchars($data['tinggi_badan']);
-    $status_gizi = htmlspecialchars($data['status_gizi']);
+    $status_gizi = status_gizi($id_balita, $berat_badan);
     $lila = htmlspecialchars($data['lila']);
     $lika = htmlspecialchars($data['lika']);
 
@@ -134,17 +143,6 @@ function update($data)
                     Swal.fire(
                         'Gagal!',
                         'Tinggi badan tidak boleh kosong',
-                        'error'
-                    )
-                  </script>";
-        exit();
-    }
-
-    if ($status_gizi == "") {
-        echo "<script>
-                    Swal.fire(
-                        'Gagal!',
-                        'Status gizi tidak boleh kosong',
                         'error'
                     )
                   </script>";

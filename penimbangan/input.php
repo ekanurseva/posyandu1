@@ -108,14 +108,6 @@ if (isset($_POST['id_balita']) && isset($_POST['url'])) {
                     </div>
 
                     <div class="mb-3 mt-2 row ms-5">
-                        <label for="tb" class="col-sm-3 me-0 col-form-label">Status Gizi</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" style="border: 1px solid black;" id="tb"
-                                name="status_gizi">
-                        </div>
-                    </div>
-
-                    <div class="mb-3 mt-2 row ms-5">
                         <label for="tb" class="col-sm-3 me-0 col-form-label">LILA (cm)</label>
                         <div class="col-sm-6">
                             <input type="number" step="0.1" class="form-control" style="border: 1px solid black;"
