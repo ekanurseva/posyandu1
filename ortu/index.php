@@ -6,31 +6,78 @@ $id_ibu = $ibu['id_user'];
 $jadwal = [];
 
 $balita = query("SELECT * FROM balita WHERE id_user = $id_ibu");
+$jadwal_query = query("SELECT DISTINCT jadwal FROM jdw_posyandu 
+                        WHERE idjadwal IN (SELECT idjadwal FROM penimbangan 
+                                            WHERE id_balita IN (SELECT id_balita FROM balita WHERE id_user = $id_ibu))
+                                            ORDER BY jadwal ASC");
+
+foreach ($jadwal_query as $jadwal_item) {
+    $tanggal = cari_tanggal($jadwal_item['jadwal'], 'F Y');
+
+    if(!is_numeric(array_search($tanggal, $jadwal))) {
+        $jadwal[] = cari_tanggal($jadwal_item['jadwal'], 'F Y');
+    }
+
+}
 
 foreach ($balita as $b) {
     $id_balita = $b['id_balita'];
     $penimbangan = query("SELECT * FROM penimbangan WHERE id_balita = $id_balita");
+    $warna1 = rand(0, 255);
+    $warna2 = rand(0, 255);
+    $warna3 = rand(0, 255);
+    $bb = [];
+    $bb_sementara = [];
+    $tanggal_sementara = [];
+    
+    $all_collor = "rgb(" . $warna1 . ", " . $warna2 . ", " .$warna3 . ")";
 
-    foreach ($penimbangan as $pen) {
-        $bb[] = $pen['berat_badan'];
-        $id_jadwal = $pen['idjadwal'];
+    foreach ($penimbangan as $timbang) {    
+        $id_jadwal = $timbang['idjadwal'];
 
         $cek_jadwal = query("SELECT * FROM jdw_posyandu WHERE idjadwal = $id_jadwal")[0];
 
-        if (array_search(cari_tanggal($cek_jadwal['jadwal'], 'd F Y'), $jadwal) != false) {
-            $jadwal[] = cari_tanggal($cek_jadwal['jadwal'], 'd F Y');
+        $tanggal_sementara[] = cari_tanggal($cek_jadwal['jadwal'], 'F Y');        
+
+        $bb_sementara[] = $timbang['berat_badan'];
+    }
+
+    foreach($jadwal as $jad) {
+        $cek_array = array_search($jad, $tanggal_sementara);
+
+        if(is_numeric($cek_array)) {
+            $bb[] = $bb_sementara[$cek_array];
+        } else {
+            $bb[] = null;
         }
     }
 
     $berat[] = $bb;
-    $nama_balita[][] = $b['nama_balita'];
 
-    // var_dump($berat);
-    // var_dump($jdw);
-    // var_dump($nama_balita);
+    $nama_balita[][] = $b['nama_balita'];
+    $warna[][] = $all_collor;
 }
 
-var_dump($jadwal);
+$datasets = [];
+
+foreach ($nama_balita as $id_balita => $nama) {
+    $dataset = [
+        'label' => $nama,
+        'data' => $berat[$id_balita],
+        'borderColor' => $warna[$id_balita],
+        'tension' => 0.1
+    ];
+    $datasets[] = $dataset;
+}
+
+$data = [
+    'labels' => $jadwal,
+    'datasets' => $datasets
+];
+
+$data_json = json_encode($data);
+
+
 ?>
 
 <!DOCTYPE html>
@@ -62,7 +109,7 @@ var_dump($jadwal);
         <div class="container-fluid justify-content-center p-3">
             <!-- Navbar -->
             <?php
-            require_once('../navbar/navbar.php');
+                require_once('../navbar/navbar.php');
             ?>
             <!-- Akhir Navbar -->
         </div>
@@ -133,16 +180,7 @@ var_dump($jadwal);
         var ctx = document.getElementById('myChart').getContext('2d');
 
         // Data balita dan jadwal penimbangan
-        var dataBalita = {
-            labels: <?php echo json_encode($jadwal); ?>, // Usia balita (dalam bulan)
-            datasets: [{
-                label: 'Berat Badan ' + "<?php echo $balita[0]['nama_balita'] ?>", // Label grafik
-                data: <?php echo json_encode($bb); ?>, // Berat badan balita (dalam kg)
-                fill: false, // Tidak mengisi area di bawah garis
-                borderColor: 'rgb(80, 197, 252)', // Warna garis
-                tension: 0.1 // Tegangan kurva
-            }]
-        };
+        var dataBalita = <?php echo $data_json; ?>;
 
         // Opsi grafik
         var options = {
